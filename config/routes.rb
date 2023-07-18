@@ -302,6 +302,9 @@ Rails.application.routes.draw do
     get 'email_alerts/disable/:token',
         to: 'email_alerts#destroy',
         as: :disable_email_alerts
+
+    get 'close_account', to: 'close_account#new', as: :close_account
+    post 'close_account', to: 'close_account#create'
   end
 
   namespace :users, path: 'profile' do
