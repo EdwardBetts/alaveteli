@@ -1869,7 +1869,16 @@ RSpec.describe InfoRequest do
 
     context 'email with an intact id and broken idhash' do
       let(:email) { "request-#{ info_request.id }-asdfg@example.com" }
-      let(:guess) { Guess.new(info_request, email, :id) }
+
+      let(:guess) do
+        Guess.new(
+          info_request,
+          email: email,
+          id: info_request.id,
+          idhash: 'asdfg'
+        )
+      end
+
       it { is_expected.to include(guess) }
     end
 
@@ -1878,7 +1887,15 @@ RSpec.describe InfoRequest do
         "request-#{ info_request.id }ab-#{ info_request.idhash }@example.com"
       end
 
-      let(:guess) { Guess.new(info_request, email, :idhash) }
+      let(:guess) do
+        Guess.new(
+          info_request,
+          email: email,
+          id: nil,
+          idhash: info_request.idhash
+        )
+      end
+
       it { is_expected.to include(guess) }
     end
 
@@ -1887,13 +1904,30 @@ RSpec.describe InfoRequest do
         "request-a12x3b-#{ info_request.idhash }@example.com"
       end
 
-      let(:guess) { Guess.new(info_request, email, :idhash) }
+      let(:guess) do
+        Guess.new(
+          info_request,
+          email: email,
+          id: nil,
+          idhash: info_request.idhash
+        )
+      end
+
       it { is_expected.to include(guess) }
     end
 
     context 'upper case email with a broken id and otherwise intact idhash' do
       let(:email) { "REQUEST-123a-#{ info_request.idhash.upcase }@example.com" }
-      let(:guess) { Guess.new(info_request, email, :idhash) }
+
+      let(:guess) do
+        Guess.new(
+          info_request,
+          email: email,
+          id: nil,
+          idhash: info_request.idhash
+        )
+      end
+
       it { is_expected.to include(guess) }
     end
 
@@ -1902,7 +1936,15 @@ RSpec.describe InfoRequest do
         "request#{ info_request.id }#{ info_request.idhash }@example.com"
       end
 
-      let(:guess) { Guess.new(info_request, email, :id) }
+      let(:guess) do
+        Guess.new(
+          info_request,
+          email: email,
+          id: info_request.id,
+          idhash: info_request.idhash
+        )
+      end
+
       it { is_expected.to include(guess) }
     end
 
@@ -1911,19 +1953,45 @@ RSpec.describe InfoRequest do
         "request-#{ info_request.id }#{ info_request.idhash }@example.com"
       end
 
-      let(:guess) { Guess.new(info_request, email, :id) }
+      let(:guess) do
+        Guess.new(
+          info_request,
+          email: email,
+          id: info_request.id,
+          idhash: info_request.idhash
+        )
+      end
+
       it { is_expected.to include(guess) }
     end
 
     context 'email with a broken id and an intact idhash but missing punctuation' do
       let(:email) { "request123ab#{ info_request.idhash }@example.com" }
-      let(:guess) { Guess.new(info_request, email, :idhash) }
+
+      let(:guess) do
+        Guess.new(
+          info_request,
+          email: email,
+          id: nil,
+          idhash: info_request.idhash
+        )
+      end
+
       it { is_expected.to include(guess) }
     end
 
     context 'email with an intact id and a broken idhash but missing punctuation' do
       let(:email) { "request#{ info_request.id }abcdefgh@example.com" }
-      let(:guess) { Guess.new(info_request, email, :id) }
+
+      let(:guess) do
+        Guess.new(
+          info_request,
+          email: email,
+          id: info_request.id,
+          idhash: 'abcdefgh'
+        )
+      end
+
       it { is_expected.to include(guess) }
     end
 
@@ -1931,13 +1999,31 @@ RSpec.describe InfoRequest do
       before { InfoRequest.where(id: 1_231_014).destroy_all }
       let!(:info_request) { FactoryBot.create(:info_request, id: 1_231_014) }
       let(:email) { 'request-123loL4abcdefgh@example.com' }
-      let(:guess) { Guess.new(info_request, email, :id) }
+
+      let(:guess) do
+        Guess.new(
+          info_request,
+          email: email,
+          id: info_request.id,
+          idhash: 'abcdefgh'
+        )
+      end
+
       it { is_expected.to include(guess) }
     end
 
     context 'email with a broken id and an intact idhash but broken format' do
       let(:email) { "reqeust=123ab#{ info_request.idhash }@example.com" }
-      let(:guess) { Guess.new(info_request, email, :idhash) }
+
+      let(:guess) do
+        Guess.new(
+          info_request,
+          email: email,
+          id: nil,
+          idhash: info_request.idhash
+        )
+      end
+
       it { is_expected.to include(guess) }
     end
 
@@ -1959,8 +2045,23 @@ RSpec.describe InfoRequest do
         "request-#{ info_request_1.id }-#{ info_request_2.idhash }@example.com"
       end
 
-      let(:guess_1) { Guess.new(info_request_1, email, :id) }
-      let(:guess_2) { Guess.new(info_request_2, email, :idhash) }
+      let(:guess_1) do
+        Guess.new(
+          info_request_1,
+          email: email,
+          id: info_request_1.id,
+          idhash: info_request_2.idhash
+        )
+      end
+
+      let(:guess_2) do
+        Guess.new(
+          info_request_2,
+          email: email,
+          id: info_request_1.id,
+          idhash: info_request_2.idhash
+        )
+      end
 
       it { is_expected.to match_array([guess_1, guess_2]) }
     end
@@ -1969,7 +2070,15 @@ RSpec.describe InfoRequest do
       let(:email_1) { "request-123ab-#{ info_request.idhash }@example.com" }
       let(:email_2) { "request-#{ info_request.id }-asdfg@example.com" }
       let(:email) { [email_1, email_2] }
-      let(:guess) { Guess.new(info_request, email_1, :idhash) }
+
+      let(:guess) do
+        Guess.new(
+          info_request,
+          email: email_1,
+          id: nil,
+          idhash: info_request.idhash
+        )
+      end
 
       it { is_expected.to match_array([guess]) }
     end
@@ -1988,8 +2097,23 @@ RSpec.describe InfoRequest do
 
       let(:email) { [email_1, email_2] }
 
-      let(:guess_1) { Guess.new(info_request_1, email_1, :id) }
-      let(:guess_2) { Guess.new(info_request_2, email_1, :idhash) }
+      let(:guess_1) do
+        Guess.new(
+          info_request_1,
+          email: email_1,
+          id: info_request_1.id,
+          idhash: info_request_2.idhash
+        )
+      end
+
+      let(:guess_2) do
+        Guess.new(
+          info_request_2,
+          email: email_1,
+          id: info_request_1.id,
+          idhash: info_request_2.idhash
+        )
+      end
 
       it { is_expected.to match_array([guess_1, guess_2]) }
     end
@@ -2008,7 +2132,7 @@ RSpec.describe InfoRequest do
     context 'a direct reply to the original request email' do
       let(:subject_line) { info_request.email_subject_followup }
 
-      let(:guess) { Guess.new(info_request, subject_line, :subject) }
+      let(:guess) { Guess.new(info_request, subject: subject_line) }
 
       it { is_expected.to include(guess) }
     end
@@ -2018,7 +2142,7 @@ RSpec.describe InfoRequest do
         info_request.email_subject_followup.gsub('Re: ', 'RE: ')
       end
 
-      let(:guess) { Guess.new(info_request, subject_line, :subject) }
+      let(:guess) { Guess.new(info_request, subject: subject_line) }
 
       it { is_expected.to include(guess) }
     end
@@ -2036,8 +2160,8 @@ RSpec.describe InfoRequest do
         'Re: Freedom of Information request - How many jelly beans?'
       end
 
-      let(:guess_1) { Guess.new(info_request_1, subject_line, :subject) }
-      let(:guess_2) { Guess.new(info_request_2, subject_line, :subject) }
+      let(:guess_1) { Guess.new(info_request_1, subject: subject_line) }
+      let(:guess_2) { Guess.new(info_request_2, subject: subject_line) }
 
       it { is_expected.to match_array([guess_1, guess_2]) }
     end
@@ -2058,7 +2182,7 @@ RSpec.describe InfoRequest do
       end
 
       let(:subject_line) { 'Our ref: 12345678' }
-      let(:guess) { Guess.new(info_request, subject_line, :subject) }
+      let(:guess) { Guess.new(info_request, subject: subject_line) }
 
       it { is_expected.to include(guess) }
     end
@@ -2073,7 +2197,7 @@ RSpec.describe InfoRequest do
       end
 
       let(:guess) do
-        Guess.new(InfoRequest.holding_pen_request, subject_line, :subject)
+        Guess.new(InfoRequest.holding_pen_request, subject: subject_line)
       end
 
       it { is_expected.to_not include(guess) }
@@ -2087,7 +2211,7 @@ RSpec.describe InfoRequest do
                                              info_request: info_request)
       end
 
-      let(:guess) { Guess.new(info_request, subject_line, :subject) }
+      let(:guess) { Guess.new(info_request, subject: subject_line) }
 
       it { is_expected.to include(guess) }
     end
@@ -2103,8 +2227,8 @@ RSpec.describe InfoRequest do
         FactoryBot.create(:incoming_message, subject: subject_line).info_request
       end
 
-      let(:guess_1) { Guess.new(info_request_1, subject_line, :subject) }
-      let(:guess_2) { Guess.new(info_request_2, subject_line, :subject) }
+      let(:guess_1) { Guess.new(info_request_1, subject: subject_line) }
+      let(:guess_2) { Guess.new(info_request_2, subject: subject_line) }
 
       it { is_expected.to match_array([guess_1, guess_2]) }
     end
